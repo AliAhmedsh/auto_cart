@@ -9,12 +9,12 @@ export const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: colors.textPrimary,
+    color: colors.editorPlaceholder,
     fontFamily: typography.semiBold,
   },
   inputRow: {
-    height: 48,
-    borderRadius: 12,
+    minHeight: 48,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: spacing.md,
@@ -22,10 +22,25 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  inputRowBorderless: {
+    borderWidth: 0,
+    paddingHorizontal: 0,
+  },
   input: {
     flex: 1,
     color: colors.textPrimary,
     fontFamily: typography.regular,
+  },
+  inputRowMultiline: {
+    minHeight: 120,
+    alignItems: 'flex-start',
+    paddingVertical: spacing.sm,
+    paddingTop: spacing.md,
+  },
+  multilineInput: {
+    textAlignVertical: 'top',
+    paddingTop: 0,
+    paddingBottom: spacing.sm,
   },
   inputError: {
     borderColor: colors.error,

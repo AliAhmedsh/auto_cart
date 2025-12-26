@@ -16,11 +16,11 @@ export function Screen({ scroll, style, children, ...rest }: ScreenProps) {
   if (scroll) {
     return (
       <KeyboardAvoidingView
-        style={[styles.container, { backgroundColor, paddingBottom: spacing.md + insets.bottom }, style]}
+        style={[styles.container, { backgroundColor }, style]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: spacing.xl + insets.bottom }]}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
@@ -35,7 +35,7 @@ export function Screen({ scroll, style, children, ...rest }: ScreenProps) {
   const Container = SafeAreaView;
   return (
     <Container
-      style={[styles.container, { backgroundColor, paddingBottom: spacing.md + insets.bottom }, style]}
+      style={[styles.container, { backgroundColor }, style]}
       edges={safeAreaEdges}
       {...rest}
     >
@@ -48,10 +48,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.lg,
   },
   scrollContent: {
-    paddingBottom: spacing.xl,
+    flexGrow: 1,
   },
 });

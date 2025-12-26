@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Modal, Pressable, Text, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { Screen } from '../../../components/layout/Screen';
 import { TextInput } from '../../../components/ui/TextInput';
@@ -20,6 +20,7 @@ export default function TradeSellerExtras({ navigation }: AuthStackScreenProps<'
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showReviewNotice, setShowReviewNotice] = useState(false);
 
   const schema = yup.object().shape({
     instagram: yup.string().url('Enter a valid URL').nullable(),
@@ -124,11 +125,33 @@ export default function TradeSellerExtras({ navigation }: AuthStackScreenProps<'
         />
       </View>
       <View style={styles.footer}>
-        <Button label="Create Account" onPress={() => navigation.navigate('PendingApproval')} />
-        <Text style={styles.link}>
-          Already have an account? <Text style={styles.login}>Login</Text>
-        </Text>
+        <Button label="Create Account" onPress={() => setShowReviewNotice(true)} />
+        <Pressable style={styles.linkPressable} onPress={() => navigation.navigate('Login')} hitSlop={12}>
+          <Text style={styles.link}>
+            Already have an account? <Text style={styles.login}>Login</Text>
+          </Text>
+        </Pressable>
       </View>
+
+      <Modal
+        animationType="fade"
+        transparent
+        visible={showReviewNotice}
+        onRequestClose={() => navigation.navigate('Login')}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => navigation.navigate('Login')}
+        >
+          <Pressable style={styles.modalCard} onPress={() => {}}>
+            <Text style={styles.modalTitle}>Trade Account Under Review</Text>
+            <Text style={styles.modalBody}>
+              Thank you for your interest in a Trade Seller account. Our team is currently reviewing your request.
+            </Text>
+            <Text style={styles.modalBody}>You&apos;ll receive an update soon.</Text>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }

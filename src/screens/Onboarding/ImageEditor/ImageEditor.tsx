@@ -8,9 +8,12 @@ import { spacing } from '../../../theme/spacing';
 import { arrowBack, cropIcon, flipHorizontalIcon, flipVerticalIcon } from '../../../assets/svg/Index';
 import { Button } from '../../../components/ui/Button';
 import { styles } from './styles';
+import { useAppDispatch } from '../../../store/hooks';
+import { setImage } from '../../../store/slices/mediaSlice';
 
 export default function ImageEditor({ navigation, route }: AuthStackScreenProps<'ImageEditor'>) {
   const insets = useSafeAreaInsets();
+  const dispatch = useAppDispatch();
   const [imageUri, setImageUri] = useState(route.params?.sourceUri);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
@@ -40,6 +43,9 @@ export default function ImageEditor({ navigation, route }: AuthStackScreenProps<
   const handleNext = () => {
     const destination = route.params?.from ?? 'PrivateSellerSignup';
     const field = (route.params as any)?.field;
+    if (field && imageUri) {
+      dispatch(setImage({ field, uri: imageUri }));
+    }
     navigation.navigate(destination as any, { photoUri: imageUri, flipH, flipV, field });
   };
 

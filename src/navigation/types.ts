@@ -30,13 +30,41 @@ export type AuthStackParamList = {
 export type MainTabParamList = {
   Home: undefined;
   Search: undefined;
-  Listings: undefined;
+  Scan: undefined;
   Messages: undefined;
+  Story: undefined;
   Profile: undefined;
+};
+
+export type AdData = {
+  category: string;
+  phoneNumber: string;
+  location: string;
+  price: string;
+  description: string;
+  currency: string;
+  title: string;
+  make: string;
+  model: string;
+  year: string;
+  mileage: string;
+  fuelType: string;
+  transmission: string;
+  seats: string;
+  color: string;
+  doors: string;
+  images: string[];
+  storyImages: string[];
 };
 
 export type HomeStackParamList = {
   HomeScreen: undefined;
+  CreateAd: undefined;
+  PreviewAd: { adData: AdData };
+  AdDetail: { adId: string };
+  AdImages: { adId: string; initialIndex?: number };
+  ViewAllImages: { adId: string; images: string[] };
+  Filters: undefined;
   CarDetails: { carId: string };
 };
 

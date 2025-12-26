@@ -4,6 +4,9 @@ import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
+  container: {
+    padding: spacing.md,
+  },
   logo: {
     height: 48,
     alignSelf: 'center',

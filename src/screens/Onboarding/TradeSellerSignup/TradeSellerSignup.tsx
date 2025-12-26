@@ -9,16 +9,18 @@ import { addIcon, arrowBack, crossIcon } from '../../../assets/svg/Index';
 import * as yup from 'yup';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { styles } from './styles';
+import { useAppSelector } from '../../../store/hooks';
 
 export default function TradeSellerSignup({ navigation, route }: AuthStackScreenProps<'TradeSellerSignup'>) {
+  const media = useAppSelector(state => state.media);
   const [form, setForm] = useState({
     businessName: '',
     address: '',
     contactName: '',
     vatNumber: '',
     dealerLicense: '',
-    logoUri: undefined as string | undefined,
-    backgroundUri: undefined as string | undefined,
+    logoUri: media.logoUri as string | undefined,
+    backgroundUri: media.backgroundUri as string | undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -29,9 +31,17 @@ export default function TradeSellerSignup({ navigation, route }: AuthStackScreen
     }
   }, [route.params?.photoUri]);
 
+  useEffect(() => {
+    setForm(prev => ({
+      ...prev,
+      logoUri: media.logoUri ?? prev.logoUri,
+      backgroundUri: media.backgroundUri ?? prev.backgroundUri,
+    }));
+  }, [media.logoUri, media.backgroundUri]);
+
   const update = async (key: keyof typeof form, value: string) => {
     const nextForm = { ...form, [key]: value };
-    setForm(nextForm);
+    setForm(prev => ({ ...prev, [key]: value }));
     try {
       await schema.validateAt(key, nextForm);
       setErrors(prev => {
@@ -118,14 +128,24 @@ export default function TradeSellerSignup({ navigation, route }: AuthStackScreen
           placeholder="Contact person name"
         />
         <TextInput
-          label="VAT Number (Recommended)"
+          label={
+            <Text style={styles.fieldLabel}>
+              VAT Number
+              <Text style={styles.labelNote}> (Recommended)</Text>
+            </Text>
+          }
           value={form.vatNumber}
           onChangeText={v => update('vatNumber', v)}
           error={errors.vatNumber}
           placeholder="VAT Number"
         />
         <TextInput
-          label="Dealer  License (Optional)"
+          label={
+            <Text style={styles.fieldLabel}>
+              Dealer License
+              <Text style={styles.labelNote}> (Optional)</Text>
+            </Text>
+          }
           value={form.dealerLicense}
           onChangeText={v => update('dealerLicense', v)}
           error={errors.dealerLicense}
@@ -179,9 +199,11 @@ export default function TradeSellerSignup({ navigation, route }: AuthStackScreen
       </View>
       <View style={styles.footer}>
         <Button label="Continue" onPress={handleContinue} loading={submitting} />
-        <Text style={styles.link}>
-          Already have an account? <Text style={styles.linkBold}>Login</Text>
-        </Text>
+        <Pressable style={styles.linkPressable} onPress={() => navigation.navigate('Login')} hitSlop={12}>
+          <Text style={styles.link}>
+            Already have an account? <Text style={styles.linkBold}>Login</Text>
+          </Text>
+        </Pressable>
       </View>
     </Screen>
   );

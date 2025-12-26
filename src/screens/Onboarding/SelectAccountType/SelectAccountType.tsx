@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Text, View, ScrollView } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { Screen } from '../../../components/layout/Screen';
 import { Card } from '../../../components/ui/Card';
@@ -42,43 +42,45 @@ export default function SelectAccountType({ navigation }: AuthStackScreenProps<'
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
-    <Screen style={styles.screen}>
-      <View style={styles.header}>
-        <Image source={require('../../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
-      </View>
-      <Text style={styles.title}>Select Your Account Type</Text>
-      <View style={styles.list}>
-        {options.map(opt => {
-          const isSelected = selected === opt.key;
-          return (
-            <Card
-              key={opt.key}
-              title={opt.title}
-              subtitle={opt.subtitle}
-              selected={isSelected}
-              onPress={() => setSelected(opt.key)}
-              style={styles.card}
-              leftIcon={<SvgXml xml={opt.icon} width={36} height={36} />}
-              rightAdornment={
-                <View style={[styles.radio, isSelected ? styles.radioSelected : styles.radioIdle]}>
-                  {isSelected ? <View style={styles.radioDot} /> : null}
-                </View>
-              }
-              children={
-                isSelected && opt.details ? (
-                  <View style={styles.details}>
-                    {opt.details.map(line => (
-                      <Text key={line} style={styles.detailText}>
-                        {line}
-                      </Text>
-                    ))}
+    <Screen scroll={false} style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Image source={require('../../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
+        </View>
+        <Text style={styles.title}>Select Your Account Type</Text>
+        <View style={styles.list}>
+          {options.map(opt => {
+            const isSelected = selected === opt.key;
+            return (
+              <Card
+                key={opt.key}
+                title={opt.title}
+                subtitle={opt.subtitle}
+                selected={isSelected}
+                onPress={() => setSelected(opt.key)}
+                style={styles.card}
+                leftIcon={<SvgXml xml={opt.icon} width={36} height={36} />}
+                rightAdornment={
+                  <View style={[styles.radio, isSelected ? styles.radioSelected : styles.radioIdle]}>
+                    {isSelected ? <View style={styles.radioDot} /> : null}
                   </View>
-                ) : null
-              }
-            />
-          );
-        })}
-      </View>
+                }
+                children={
+                  isSelected && opt.details ? (
+                    <View style={styles.details}>
+                      {opt.details.map(line => (
+                        <Text key={line} style={styles.detailText}>
+                          {line}
+                        </Text>
+                      ))}
+                    </View>
+                  ) : null
+                }
+              />
+            );
+          })}
+        </View>
+      </ScrollView>
       <View style={styles.footer}>
         <Button
           label="Continue"

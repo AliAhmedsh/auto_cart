@@ -34,6 +34,17 @@ export const styles = StyleSheet.create({
     gap: spacing.lg,
     marginBottom: spacing.xl,
   },
+  fieldLabel: {
+    fontSize: 14,
+    color: colors.editorPlaceholder,
+    fontFamily: typography.semiBold,
+  },
+  labelNote: {
+    fontSize: 14,
+    color: colors.editorPlaceholder,
+    fontStyle: 'italic',
+    fontFamily: typography.regular,
+  },
   label: {
     fontSize: 14,
     color: colors.textSecondary,
@@ -94,6 +105,10 @@ export const styles = StyleSheet.create({
     gap: spacing.md,
     marginTop: spacing.xl * 1.2,
     paddingBottom: spacing.xl,
+  },
+  linkPressable: {
+    alignItems: 'center',
+    paddingVertical: spacing.xs,
   },
   link: {
     fontSize: 14,

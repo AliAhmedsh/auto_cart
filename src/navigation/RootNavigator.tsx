@@ -3,13 +3,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import { AuthStack } from './stacks/AuthStack';
-import { BottomTabNavigator } from './BottomTabNavigator';
-import { useAuth } from '../context/AuthContext';
+import { MainTabNavigator } from './MainTabNavigator';
+import { useAppSelector } from '../store/hooks';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
 
   return (
     <NavigationContainer>
@@ -17,7 +17,7 @@ export function RootNavigator() {
         {!isAuthenticated ? (
           <Stack.Screen name="AuthStack" component={AuthStack} />
         ) : (
-          <Stack.Screen name="MainStack" component={BottomTabNavigator} />
+          <Stack.Screen name="MainStack" component={MainTabNavigator} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

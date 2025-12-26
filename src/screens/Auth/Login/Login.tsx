@@ -9,8 +9,11 @@ import { styles } from './styles';
 import * as yup from 'yup';
 import { SvgXml } from 'react-native-svg';
 import { eyeOpen, eyeClose } from '../../../assets/svg/Index';
+import { useAppDispatch } from '../../../store/hooks';
+import { login } from '../../../store/slices/authSlice';
 
 export default function Login({ navigation }: AuthStackScreenProps<'Login'>) {
+  const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +45,17 @@ export default function Login({ navigation }: AuthStackScreenProps<'Login'>) {
     try {
       await schema.validate({ email, password }, { abortEarly: false });
       setErrors({});
-      // TODO: integrate real login
+      
+      // Mock login - dispatch auth action
+      dispatch(login({
+        user: {
+          id: '1',
+          email,
+          name: 'User',
+          accountType: 'private',
+        },
+        token: 'mock-token',
+      }));
     } catch (err: any) {
       const errs: Record<string, string> = {};
       if (err.inner) {
@@ -57,7 +70,7 @@ export default function Login({ navigation }: AuthStackScreenProps<'Login'>) {
   };
 
   return (
-    <Screen>
+    <Screen style={styles.container}>
       <Image source={require('../../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
       
       <View style={styles.header}>
