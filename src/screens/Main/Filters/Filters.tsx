@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
 import { Screen } from '../../../components/layout/Screen';
 import { Button } from '../../../components/ui/Button';
 import { SvgXml } from 'react-native-svg';
@@ -49,6 +49,7 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
   const filters = useAppSelector(state => state.filter);
 
   const [localFilters, setLocalFilters] = useState(filters);
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showYearMinDropdown, setShowYearMinDropdown] = useState(false);
   const [showYearMaxDropdown, setShowYearMaxDropdown] = useState(false);
@@ -56,6 +57,14 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
   const [showPriceMaxDropdown, setShowPriceMaxDropdown] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+
+  const categoryRef = useRef<View | null>(null);
+  const yearMinRef = useRef<View | null>(null);
+  const yearMaxRef = useRef<View | null>(null);
+  const priceMinRef = useRef<View | null>(null);
+  const priceMaxRef = useRef<View | null>(null);
+  const locationRef = useRef<View | null>(null);
+  const countryRef = useRef<View | null>(null);
 
   const closeAllDropdowns = () => {
     setShowCategoryDropdown(false);
@@ -92,6 +101,51 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
 
   const downIcon = <SvgXml xml={chevronDown16} width={16} height={16} />;
 
+  const measureAndOpen = (ref: React.RefObject<View | null>, setter: (v: boolean) => void, current: boolean) => {
+    if (current) {
+      setter(false);
+      return;
+    }
+    closeAllDropdowns();
+    ref.current?.measureInWindow((x, y, width, height) => {
+      setDropdownPosition({ x, y, width, height });
+      setter(true);
+    });
+  };
+
+  const renderDropdownModal = (visible: boolean, options: string[], onSelect: (value: string) => void) => (
+    <Modal transparent animationType="fade" visible={visible} onRequestClose={closeAllDropdowns}>
+      <Pressable style={styles.modalOverlay} onPress={closeAllDropdowns}>
+        <View
+          style={[
+            styles.dropdownMenu,
+            {
+              position: 'absolute',
+              top: dropdownPosition.y + dropdownPosition.height,
+              left: dropdownPosition.x,
+              width: dropdownPosition.width,
+            },
+          ]}
+        >
+          <ScrollView style={styles.dropdownScroll} nestedScrollEnabled>
+            {options.map((option) => (
+              <Pressable
+                key={option}
+                style={styles.dropdownItem}
+                onPress={() => {
+                  onSelect(option);
+                  closeAllDropdowns();
+                }}
+              >
+                <Text style={styles.dropdownItemText}>{option}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      </Pressable>
+    </Modal>
+  );
+
   return (
     <Screen>
       <View style={styles.header}>
@@ -110,11 +164,10 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
           <View style={[styles.section, showCategoryDropdown && styles.sectionActive]}>
             <Text style={styles.label}>Category</Text>
             <Pressable
+              ref={categoryRef}
               style={styles.dropdown}
               onPress={() => {
-                const next = !showCategoryDropdown;
-                closeAllDropdowns();
-                setShowCategoryDropdown(next);
+                measureAndOpen(categoryRef, setShowCategoryDropdown, showCategoryDropdown);
               }}
             >
               <Text style={localFilters.category ? styles.dropdownValue : styles.dropdownPlaceholder}>
@@ -122,22 +175,7 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
               </Text>
               {downIcon}
             </Pressable>
-            {showCategoryDropdown && (
-              <View style={styles.dropdownMenu}>
-                {categories.map((cat) => (
-                  <Pressable
-                    key={cat}
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      updateLocalFilter('category', cat);
-                      setShowCategoryDropdown(false);
-                    }}
-                  >
-                    <Text style={styles.dropdownItemText}>{cat}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
+            {renderDropdownModal(showCategoryDropdown, categories, (cat) => updateLocalFilter('category', cat))}
           </View>
 
           {/* Year */}
@@ -146,11 +184,10 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
             <View style={styles.row}>
               <View style={[styles.halfWidth, showYearMinDropdown && styles.halfWidthActive]}>
                 <Pressable
+                  ref={yearMinRef}
                   style={styles.dropdown}
                   onPress={() => {
-                    const next = !showYearMinDropdown;
-                    closeAllDropdowns();
-                    setShowYearMinDropdown(next);
+                    measureAndOpen(yearMinRef, setShowYearMinDropdown, showYearMinDropdown);
                   }}
                 >
                   <Text style={localFilters.yearMin ? styles.dropdownValue : styles.dropdownPlaceholder}>
@@ -158,33 +195,15 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
                   </Text>
                   {downIcon}
                 </Pressable>
-                {showYearMinDropdown && (
-                  <View style={styles.dropdownMenu}>
-                    <ScrollView style={styles.dropdownScroll}>
-                      {years.map((year) => (
-                        <Pressable
-                          key={year}
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            updateLocalFilter('yearMin', year);
-                            setShowYearMinDropdown(false);
-                          }}
-                        >
-                          <Text style={styles.dropdownItemText}>{year}</Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
+                {renderDropdownModal(showYearMinDropdown, years, (year) => updateLocalFilter('yearMin', year))}
               </View>
 
               <View style={[styles.halfWidth, showYearMaxDropdown && styles.halfWidthActive]}>
                 <Pressable
+                  ref={yearMaxRef}
                   style={styles.dropdown}
                   onPress={() => {
-                    const next = !showYearMaxDropdown;
-                    closeAllDropdowns();
-                    setShowYearMaxDropdown(next);
+                    measureAndOpen(yearMaxRef, setShowYearMaxDropdown, showYearMaxDropdown);
                   }}
                 >
                   <Text style={localFilters.yearMax ? styles.dropdownValue : styles.dropdownPlaceholder}>
@@ -192,24 +211,7 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
                   </Text>
                   {downIcon}
                 </Pressable>
-                {showYearMaxDropdown && (
-                  <View style={styles.dropdownMenu}>
-                    <ScrollView style={styles.dropdownScroll}>
-                      {years.map((year) => (
-                        <Pressable
-                          key={year}
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            updateLocalFilter('yearMax', year);
-                            setShowYearMaxDropdown(false);
-                          }}
-                        >
-                          <Text style={styles.dropdownItemText}>{year}</Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
+                {renderDropdownModal(showYearMaxDropdown, years, (year) => updateLocalFilter('yearMax', year))}
               </View>
             </View>
           </View>
@@ -220,11 +222,10 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
             <View style={styles.row}>
               <View style={[styles.halfWidth, showPriceMinDropdown && styles.halfWidthActive]}>
                 <Pressable
+                  ref={priceMinRef}
                   style={styles.dropdown}
                   onPress={() => {
-                    const next = !showPriceMinDropdown;
-                    closeAllDropdowns();
-                    setShowPriceMinDropdown(next);
+                    measureAndOpen(priceMinRef, setShowPriceMinDropdown, showPriceMinDropdown);
                   }}
                 >
                   <Text style={localFilters.priceMin ? styles.dropdownValue : styles.dropdownPlaceholder}>
@@ -232,33 +233,19 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
                   </Text>
                   {downIcon}
                 </Pressable>
-                {showPriceMinDropdown && (
-                  <View style={styles.dropdownMenu}>
-                    <ScrollView style={styles.dropdownScroll}>
-                      {['5000', '10000', '15000', '20000', '25000', '30000', '40000', '50000'].map((price) => (
-                        <Pressable
-                          key={price}
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            updateLocalFilter('priceMin', price);
-                            setShowPriceMinDropdown(false);
-                          }}
-                        >
-                          <Text style={styles.dropdownItemText}>${price}</Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
-                  </View>
+                {renderDropdownModal(
+                  showPriceMinDropdown,
+                  ['5000', '10000', '15000', '20000', '25000', '30000', '40000', '50000'],
+                  (price) => updateLocalFilter('priceMin', price),
                 )}
               </View>
 
               <View style={[styles.halfWidth, showPriceMaxDropdown && styles.halfWidthActive]}>
                 <Pressable
+                  ref={priceMaxRef}
                   style={styles.dropdown}
                   onPress={() => {
-                    const next = !showPriceMaxDropdown;
-                    closeAllDropdowns();
-                    setShowPriceMaxDropdown(next);
+                    measureAndOpen(priceMaxRef, setShowPriceMaxDropdown, showPriceMaxDropdown);
                   }}
                 >
                   <Text style={localFilters.priceMax ? styles.dropdownValue : styles.dropdownPlaceholder}>
@@ -266,23 +253,10 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
                   </Text>
                   {downIcon}
                 </Pressable>
-                {showPriceMaxDropdown && (
-                  <View style={styles.dropdownMenu}>
-                    <ScrollView style={styles.dropdownScroll}>
-                      {['10000', '20000', '30000', '40000', '50000', '75000', '100000', '150000'].map((price) => (
-                        <Pressable
-                          key={price}
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            updateLocalFilter('priceMax', price);
-                            setShowPriceMaxDropdown(false);
-                          }}
-                        >
-                          <Text style={styles.dropdownItemText}>${price}</Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
-                  </View>
+                {renderDropdownModal(
+                  showPriceMaxDropdown,
+                  ['10000', '20000', '30000', '40000', '50000', '75000', '100000', '150000'],
+                  (price) => updateLocalFilter('priceMax', price),
                 )}
               </View>
             </View>
@@ -292,11 +266,10 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
           <View style={[styles.section, showLocationDropdown && styles.sectionActive]}>
             <Text style={styles.label}>Location</Text>
             <Pressable
+              ref={locationRef}
               style={styles.dropdown}
               onPress={() => {
-                const next = !showLocationDropdown;
-                closeAllDropdowns();
-                setShowLocationDropdown(next);
+                measureAndOpen(locationRef, setShowLocationDropdown, showLocationDropdown);
               }}
             >
               <Text style={localFilters.location ? styles.dropdownValue : styles.dropdownPlaceholder}>
@@ -304,33 +277,17 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
               </Text>
               {downIcon}
             </Pressable>
-            {showLocationDropdown && (
-              <View style={styles.dropdownMenu}>
-                {locations.map((loc) => (
-                  <Pressable
-                    key={loc}
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      updateLocalFilter('location', loc);
-                      setShowLocationDropdown(false);
-                    }}
-                  >
-                    <Text style={styles.dropdownItemText}>{loc}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
+            {renderDropdownModal(showLocationDropdown, locations, (loc) => updateLocalFilter('location', loc))}
           </View>
 
           {/* Current Country of Registration */}
           <View style={[styles.section, showCountryDropdown && styles.sectionActive]}>
             <Text style={styles.label}>Current Country of Registration</Text>
             <Pressable
+              ref={countryRef}
               style={styles.dropdown}
               onPress={() => {
-                const next = !showCountryDropdown;
-                closeAllDropdowns();
-                setShowCountryDropdown(next);
+                measureAndOpen(countryRef, setShowCountryDropdown, showCountryDropdown);
               }}
             >
               <Text style={localFilters.country ? styles.dropdownValue : styles.dropdownPlaceholder}>
@@ -338,22 +295,7 @@ export default function Filters({ navigation }: HomeStackScreenProps<'Filters'>)
               </Text>
               {downIcon}
             </Pressable>
-            {showCountryDropdown && (
-              <View style={styles.dropdownMenu}>
-                {countries.map((country) => (
-                  <Pressable
-                    key={country}
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      updateLocalFilter('country', country);
-                      setShowCountryDropdown(false);
-                    }}
-                  >
-                    <Text style={styles.dropdownItemText}>{country}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
+            {renderDropdownModal(showCountryDropdown, countries, (country) => updateLocalFilter('country', country))}
           </View>
         </View>
       </ScrollView>
