@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     zIndex: 1,
   },
   sectionActive: {
-    zIndex: 20,
+    zIndex: 2000,
   },
   label: {
     fontSize: 14,
@@ -77,8 +77,8 @@ export const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 8,
     maxHeight: 200,
-    zIndex: 1000,
-    elevation: 5,
+    zIndex: 4000,
+    elevation: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -86,6 +86,10 @@ export const styles = StyleSheet.create({
   },
   dropdownScroll: {
     maxHeight: 200,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent',
   },
   dropdownItem: {
     paddingHorizontal: spacing.md,
@@ -108,7 +112,7 @@ export const styles = StyleSheet.create({
     zIndex: 1,
   },
   halfWidthActive: {
-    zIndex: 20,
+    zIndex: 2000,
   },
   footer: {
     paddingHorizontal: spacing.lg,
